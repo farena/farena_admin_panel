@@ -10,7 +10,7 @@
     :min-date="minDate"
   >
     <template v-slot="{ inputValue, inputEvents }">
-      <div class="form-container" :class="{ disabled, 'flex-field': flexField }" v-bind="$attrs">
+      <div class="form-container" :class="{ disabled, 'flex-field': flexField, 'input-error': errors?.length }" v-bind="$attrs">
         <label v-if="label">{{ label }}</label>
         <div class="form-wrapper">
           <div class="icon" v-if="!flexField">
@@ -18,6 +18,9 @@
           </div>
           <input :value="inputValue" v-on="inputEvents" />
         </div>
+        <p v-if="errors?.length" class="error-message">
+          {{ errors.join(', ') }}
+        </p>
       </div>
     </template>
   </v-date-picker>
@@ -63,6 +66,10 @@ export default {
     flexField: {
       type: Boolean,
       default: false
+    },
+    errors: {
+      type: Array,
+      default: null
     }
   },
   data: () => ({

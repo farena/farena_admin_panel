@@ -3,7 +3,7 @@
     <slot :launchPicker="launchFilePicker">
       <div
         class="form-container form-uploader"
-        :class="{ 'flex-field': flexField }"
+        :class="{ 'flex-field': flexField, 'input-error': errors?.length }"
         v-bind="$attrs"
       >
         <label v-if="label">{{ label }}</label>
@@ -23,6 +23,9 @@
             </small>
           </div>
         </div>
+        <p v-if="errors?.length" class="error-message">
+          {{ errors.join(', ') }}
+        </p>
       </div>
     </slot>
     <input type="file" @change="fileSelected" ref="fileInput" :multiple="multiple" />
@@ -82,7 +85,11 @@ export default {
       type: String,
       default: 'The file must be less than {maxSize}MB'
     },
-    multiple: Boolean
+    multiple: Boolean,
+    errors: {
+      type: Array,
+      default: null
+    }
   },
   data: () => ({
     file: null

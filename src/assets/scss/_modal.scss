@@ -151,6 +151,19 @@
       .img-container {
         height: 80vh;
         background-size: contain;
+
+        .btn {
+          position: absolute;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 1;
+        }
+      }
+
+      .gallery-container {
+        height: 80vh;
+        width: 100%;
       }
 
       .swiper-wrapper {

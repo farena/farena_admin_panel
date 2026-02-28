@@ -1,12 +1,21 @@
 <template>
   <div
     class="form-container form-select"
-    :class="{ disabled, 'flex-field': flexField, 'form-select-multiple': multiple }"
+    :class="{
+      disabled,
+      'flex-field': flexField,
+      'form-select-multiple': multiple,
+      'input-error': errors?.length
+    }"
   >
-    <label :for="itemId" v-if="label" @click="onClickLabel">{{ label }}</label>
+    <label :for="itemId" v-if="label" @click="onClickLabel">
+      {{ label }}
+      <span class="fw-bold text-danger" v-if="asterisk">*</span>
+    </label>
 
     <div class="form-wrapper" v-if="!multiple">
-      <i class="icon" :class="icon" v-if="icon"></i>
+      <i class="icon" :class="icon" v-if="icon && !iconMaterial"></i>
+      <i class="icon material-symbols-outlined" v-else-if="icon && iconMaterial">{{ icon }}</i>
       <select :id="itemId" v-model="result" :disabled="disabled">
         <option
           :value="opt[this.optionValue] !== undefined ? opt[this.optionValue] : opt"
@@ -24,7 +33,8 @@
       <template #action="{ open, close }">
         <div class="form-wrapper" ref="form_wrapper" :id="`form_wrapper_${itemId}`">
           <div class="icon" v-if="icon">
-            <i :class="icon"></i>
+            <i class="material-symbols-outlined" v-if="iconMaterial">{{ icon }}</i>
+            <i :class="icon" v-else></i>
           </div>
 
           <div
@@ -47,6 +57,8 @@
               <i class="fa fa-times" @click.stop="removeOption(ix)"></i>
             </div>
           </div>
+
+          <slot />
         </div>
       </template>
 
@@ -65,6 +77,10 @@
         </ul>
       </template>
     </FormDropdown>
+
+    <p v-if="errors?.length" class="error-message">
+      {{ errors.join(', ') }}
+    </p>
   </div>
 </template>
 
@@ -74,7 +90,7 @@ import FormDropdown from './FormDropdown.vue'
 export default {
   props: {
     modelValue: {
-      type: [Number, String, Array, Object],
+      type: [Number, String, Array, Object, Boolean],
       default: null
     },
     label: {
@@ -88,6 +104,10 @@ export default {
     icon: {
       type: String,
       default: null
+    },
+    iconMaterial: {
+      type: Boolean,
+      default: false
     },
     disabled: {
       type: Boolean,
@@ -112,6 +132,14 @@ export default {
     noDataMsg: {
       type: String,
       default: 'No entries were found'
+    },
+    errors: {
+      type: Array,
+      default: null
+    },
+    asterisk: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['onSelect', 'update:modelValue', 'onSelect', 'onRemove'],

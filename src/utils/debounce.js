@@ -1,4 +1,4 @@
-export default function debounce({ callback, delay = 250, startedCallback, finalCallback }) {
+export default function debounce(callback, delay = 250, startedCallback, finalCallback) {
   let timeout
 
   return (...args) => {

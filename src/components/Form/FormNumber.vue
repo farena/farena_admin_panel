@@ -1,5 +1,13 @@
 <template>
-  <div class="form-container" :class="{ disabled, 'flex-field': flexField }">
+  <div
+    class="form-container"
+    :class="{
+      disabled,
+      'flex-field': flexField,
+      'show-arrows': showArrows,
+      'input-error': errors?.length
+    }"
+  >
     <label :for="itemId" v-if="label">
       {{ label }} <small v-if="description">{{ description }}</small>
     </label>
@@ -18,14 +26,21 @@
         @focus="onFocus"
         @blur="onBlur"
         @change="$emit('onChange', $event.target.value)"
+        @input="onInput"
+        :step="step"
+        :min="min"
+        :max="max"
       />
       <slot />
     </div>
+    <p v-if="errors?.length" class="error-message">
+      {{ errors.join(', ') }}
+    </p>
   </div>
 </template>
 
 <script>
-import { formatToMoney } from '@/utils/string'
+import { formatToMoney, centsToDollars, dollarsToCents } from '@/utils/string'
 
 export default {
   props: {
@@ -50,7 +65,13 @@ export default {
     selectOnFocus: Boolean,
     moneyFormat: Boolean,
     max: Number,
-    min: Number
+    min: Number,
+    step: Number,
+    showArrows: Boolean,
+    errors: {
+      type: Array,
+      default: null
+    }
   },
   data: () => ({
     itemId: null,
@@ -66,7 +87,9 @@ export default {
         this.inputType = 'text'
 
         this.$nextTick(() => {
-          this.result = formatToMoney(this.modelValue)
+          // Convert cents to dollars for display
+          const dollars = centsToDollars(this.modelValue)
+          this.result = formatToMoney(dollars)
         })
       }
     },
@@ -79,7 +102,9 @@ export default {
 
         if (this.moneyFormat) {
           this.inputType = 'text'
-          aux = formatToMoney(this.modelValue)
+          // Convert cents to dollars for display
+          const dollars = centsToDollars(this.modelValue)
+          aux = formatToMoney(dollars)
         }
 
         this.$nextTick(() => {
@@ -97,9 +122,10 @@ export default {
     },
     onFocus(e) {
       if (this.moneyFormat) {
-        // Show raw number when focused
+        // Show dollars (converted from cents) when focused
         this.inputType = 'number'
-        this.result = this.modelValue
+        const dollars = centsToDollars(this.modelValue)
+        this.result = dollars
       }
 
       this.$nextTick(() => {
@@ -107,7 +133,7 @@ export default {
       })
     },
     onBlur(e) {
-      let aux = parseFloat(parseFloat(e.target.value).toFixed(2))
+      let aux = parseFloat(parseFloat(e.target.value || 0).toFixed(2))
 
       if (this.max !== undefined && aux > this.max) {
         aux = this.max
@@ -116,13 +142,21 @@ export default {
         aux = this.min
       }
 
-      this.$emit('update:modelValue', aux)
+      // If moneyFormat is true, convert dollars to cents before emitting
+      const valueToEmit = this.moneyFormat ? dollarsToCents(aux) : aux
+      this.$emit('update:modelValue', valueToEmit)
 
       if (this.moneyFormat) {
         this.inputType = 'text'
         this.$nextTick(() => {
+          // Display in dollars (aux is already in dollars)
           this.result = formatToMoney(aux)
         })
+      }
+    },
+    onInput({ target: { value } }) {
+      if (this.showArrows) {
+        this.$emit('update:modelValue', value)
       }
     }
   }

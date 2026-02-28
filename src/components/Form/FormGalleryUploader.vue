@@ -1,6 +1,15 @@
 <template>
   <div class="form-gallery-uploader">
-    <label>{{ label }}</label>
+    <div class="d-flex justify-content-between align-items-center">
+      <label>{{ label }}</label>
+      <FormButton
+        small
+        icon="fa fa-sort"
+        tooltip="Cambiar orden de las fotos"
+        @click="showOrderList = true"
+        v-if="modelValue.length > 0"
+      ></FormButton>
+    </div>
     <div class="form-gallery-items-wrapper" :style="wrapperStyles">
       <FormUploader
         class="form-gallery-item add-item form-uploader bg-primary bg-hover-primary-shade"
@@ -12,7 +21,7 @@
         <template #default="{ launchPicker }">
           <div @click="launchPicker">
             <i class="fa fa-image"></i>
-            <h6 class="label m-0">Add Photo</h6>
+            <h6 class="label m-0">Agregar foto</h6>
           </div>
         </template>
       </FormUploader>
@@ -36,19 +45,39 @@
     @close="showGallery = false"
     :items="modelValue"
     :selectedIndex="selectedIndex"
+    @onSaveTemplate="saveTemplate"
+  />
+
+  <OrderList
+    v-if="showOrderList"
+    :items="modelValue"
+    primaryKey="file_id"
+    orderKey="sort"
+    nameKey="url"
+    isImageArray
+    @close="showOrderList = false"
+    @save="onSaveOrder"
   />
 </template>
 
 <script>
 import FormUploader from './FormUploader.vue'
 import Gallery from '../Gallery/Gallery.vue'
+import FormButton from './FormButton.vue'
+import OrderList from '../Lists/OrderList.vue'
 
 export default {
   components: {
     FormUploader,
-    Gallery
+    Gallery,
+    FormButton,
+    OrderList
   },
   props: {
+    primaryKey: {
+      type: String,
+      default: 'file_id'
+    },
     label: {
       type: String,
       default: 'Gallery'
@@ -67,7 +96,9 @@ export default {
       })
     },
     onAdd: Function,
-    onDelete: Function
+    onDelete: Function,
+    onUpdateOrder: Function,
+    onSaveTemplate: Function
   },
   mounted() {
     window.addEventListener('resize', this.onResize)
@@ -79,7 +110,8 @@ export default {
   data: () => ({
     columns: 3,
     showGallery: false,
-    selectedIndex: 0
+    selectedIndex: 0,
+    showOrderList: false
   }),
   computed: {
     wrapperStyles() {
@@ -100,7 +132,10 @@ export default {
         if (this.onAdd) {
           file_id = await this.onAdd(img)
         }
-        this.$emit('update:modelValue', [...this.modelValue, { ...img, file_id }])
+        this.$emit('update:modelValue', [
+          ...this.modelValue,
+          { ...img, [this.primary_key]: file_id }
+        ])
       }
     },
     async removePhoto(ix) {
@@ -113,9 +148,24 @@ export default {
       aux.splice(ix, 1)
       this.$emit('update:modelValue', aux)
     },
+    async onSaveOrder(items) {
+      if (this.onUpdateOrder) {
+        await this.onUpdateOrder(items)
+      }
+
+      this.$emit('update:modelValue', items)
+    },
     openGallery(index) {
       this.showGallery = true
       this.selectedIndex = index
+    },
+    saveTemplate({ index, item }) {
+      if (this.onSaveTemplate) {
+        this.onSaveTemplate({ index, item })
+      }
+      const aux = [...this.modelValue]
+      aux[index] = item
+      this.$emit('update:modelValue', aux)
     }
   }
 }

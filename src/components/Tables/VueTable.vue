@@ -2,197 +2,215 @@
   <div class="v-table">
     <VueTableFilters
       v-show="!noFilters"
-      :searchable="opts.searchable"
+      :searchable="searchable"
       :exportable="exportable"
       :filters="filters"
       :headers="headers"
       :searchHelper="searchHelper"
+      :lang="lang.filters"
+      :initialGetter="initialGetter"
       @search="searched"
       @filter="filtered"
       @onExport="onExport"
+      ref="vfilters"
     />
-
-    <table :class="opts.tableClass">
-      <thead :class="opts.theadClass">
-        <tr>
-          <th v-if="checkeable" width="1%">
-            <input v-model="checkAll" type="checkbox" />
-          </th>
-          <template v-for="head in visibleHeaders" :key="head.key">
-            <th :style="{ width: head.width ? head.width + '%' : 'auto' }">
-              {{ head.mask || head.title.replaceAll('_', ' ').ucwords() }}
-            </th>
-          </template>
-          <th style="width: 1%" v-if="actions?.length" />
-        </tr>
-      </thead>
-      <tbody :class="opts.tbodyClass">
-        <template
-          v-if="
-            !values ||
-            values.length === 0 ||
-            (Object.keys(values).length === 0 && values.constructor === Object)
-          "
-        >
+    <div class="v-table-container">
+      <table :class="opts.tableClass">
+        <thead :class="opts.theadClass">
           <tr>
-            <td :colspan="visibleHeaders.length + 1" style="text-align: center">
-              <loader />
+            <th v-if="checkeable" width="1%">
+              <input v-model="checkAll" type="checkbox" />
+            </th>
+            <template v-for="head in visibleHeaders" :key="head.key">
+              <th :style="{ width: head.width ? head.width + '%' : 'auto' }">
+                {{ (head.mask || head.title || '').replaceAll('_', ' ').ucwords() }}
+              </th>
+            </template>
+            <th style="width: 1%" v-if="actions?.length" />
+          </tr>
+        </thead>
+        <tbody :class="opts.tbodyClass">
+          <template
+            v-if="
+              !values ||
+              values.length === 0 ||
+              (Object.keys(values).length === 0 && values.constructor === Object)
+            "
+          >
+            <tr>
+              <td :colspan="visibleHeaders.length + 1" style="text-align: center">
+                <loader />
+              </td>
+            </tr>
+          </template>
+          <tr
+            v-for="(item, a) in values.data"
+            :key="item.id"
+            @mousedown="startHoldTimer"
+            @mouseup="endHoldTimer"
+            @mouseleave="cancelHoldTimer"
+            @click.stop="handleClick(item, a)"
+            @click.stop.middle="rowClicked(item, a, true)"
+            :class="{ 'v-table-row-clickeable': clickeableRows, [`${item.rowClass || ''}`]: true }"
+          >
+            <td @click.stop v-if="checkeable">
+              <input
+                v-model="item.checked"
+                type="checkbox"
+                @click.stop="
+                  $emit('checked', { all: false, value: $event.target.checked, index: a })
+                "
+              />
+            </td>
+
+            <td
+              v-for="(head, b) in visibleHeaders"
+              :key="b"
+              :class="{
+                'v-table-editable-td': head.editable,
+                'v-table-just-button': head.justButton
+              }"
+              :data-cell="(head.mask || head.title || '').replaceAll('_', ' ').ucwords()"
+            >
+              <template v-if="head.slot">
+                <div>
+                  <slot :name="head.slot" :item="item" :index="a" />
+                </div>
+              </template>
+
+              <template v-else-if="head.editable">
+                <div
+                  v-if="head.editable !== 'checkbox'"
+                  class="v-table-input-container"
+                  :class="opts.inputContainerClass"
+                >
+                  <input
+                    v-if="['text', 'number'].includes(head.editable)"
+                    class="v-table-input"
+                    :class="opts.inputClass"
+                    :type="head.editable"
+                    :value="nestedTitle(item, head.title)"
+                    @input="$emit('editableInput', a, head.title, $event.target.value)"
+                    @change="$emit('editableChange', a, head.title, $event.target.value)"
+                  />
+                  <select
+                    v-if="head.editable === 'select'"
+                    :class="opts.inputClass"
+                    class="v-table-input"
+                    :value="nestedTitle(item, head.title)"
+                    @input="$emit('editableInput', a, head.title, $event.target.value)"
+                    @change="$emit('editableChange', a, head.title, $event.target.value)"
+                  >
+                    <option v-for="o in head.options" :key="o.id" :value="o.id">
+                      {{ o.label }}
+                    </option>
+                  </select>
+                </div>
+                <div v-else class="v-table-checkbox-container" :class="opts.checkboxContainerClass">
+                  <input
+                    class="v-table-checkbox"
+                    :class="opts.checkboxClass"
+                    :type="head.editable"
+                    :checked="nestedTitle(item, head.title)"
+                    @input="$emit('editableInput', a, head.title, $event.target.checked)"
+                    @change="$emit('editableChange', a, head.title, $event.target.checked)"
+                  />
+                </div>
+              </template>
+
+              <template v-else>
+                <span v-if="head.htmlFormat === true" v-html="parseValue(item, head)" />
+                <div v-else :title="parseValue(item, head, true)">
+                  <b v-if="head.strong">
+                    {{ parseValue(item, head) }}
+                  </b>
+                  <span v-else>
+                    {{ parseValue(item, head) }}
+                  </span>
+                </div>
+              </template>
+            </td>
+
+            <td class="vt-actions-cell" v-if="actions?.length">
+              <div>
+                <button
+                  v-if="canMoveRows"
+                  class="btn btn-sm btn-borderless-dark"
+                  @click.stop="actionSortRow(item, 'decrease')"
+                  style="position: relative"
+                  :disabled="a === 0"
+                >
+                  <i class="fa-solid fa-chevron-up"></i>
+                </button>
+                <button
+                  v-if="canMoveRows"
+                  class="btn btn-sm btn-borderless-dark"
+                  @click.stop="actionSortRow(item, 'increase')"
+                  style="position: relative"
+                  :disabled="a === values.data.length - 1"
+                >
+                  <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <FormDropdown position="bottom" v-if="itemHasActions(item, actions)">
+                  <template #action="{ open }">
+                    <button class="btn btn-sm btn-borderless-dark actions-btn" @click.stop="open">
+                      <i class="fa fa-ellipsis"></i>
+                    </button>
+                  </template>
+                  <template #default="{ close }">
+                    <template v-for="(act, i) in actions">
+                      <div :key="i" v-if="!act.hideWhenFn || !act.hideWhenFn(item)">
+                        <a
+                          v-if="act.to && act.v1"
+                          :href="act.to(item)"
+                          target="_blank"
+                          class="btn btn-borderless-dark vtable-btn"
+                        >
+                          <small>{{ act.title }}</small>
+                        </a>
+                        <router-link
+                          v-else-if="act.to"
+                          :to="act.to(item)"
+                          class="btn btn-borderless-dark actions-btn"
+                        >
+                          <small>{{ act.title }}</small>
+                        </router-link>
+                        <button
+                          v-else
+                          class="btn btn-borderless-dark actions-btn"
+                          @click.stop="actionClicked(act, item, a, close)"
+                          @click.stop.middle="actionClicked(act, item, a, close, true)"
+                        >
+                          <small>{{ act.title }}</small>
+                        </button>
+                      </div>
+                    </template>
+                  </template>
+                </FormDropdown>
+              </div>
             </td>
           </tr>
-        </template>
-        <tr
-          v-for="(item, a) in values.data"
-          :key="item.id"
-          @mousedown="startHoldTimer"
-          @mouseup="endHoldTimer"
-          @mouseleave="cancelHoldTimer"
-          @click.stop="handleClick(item, a)"
-          @click.stop.middle="rowClicked(item, a, true)"
-          :class="{ 'v-table-row-clickeable': clickeableRows }"
-        >
-          <td @click.stop v-if="checkeable">
-            <input
-              v-model="item.checked"
-              type="checkbox"
-              @click.stop="$emit('itemChecked', a, $event.target.checked)"
-            />
-          </td>
-
-          <td
-            v-for="(head, b) in visibleHeaders"
-            :key="b"
-            :class="{
-              'v-table-editable-td': head.editable,
-              'v-table-just-button': head.justButton
-            }"
-            :data-cell="(head.mask || head.title).replaceAll('_', ' ').ucwords()"
-          >
-            <template v-if="head.slot">
-              <div>
-                <slot :name="head.slot" :item="item" :index="a" />
-              </div>
-            </template>
-
-            <template v-else-if="head.editable">
-              <div
-                v-if="head.editable !== 'checkbox'"
-                class="v-table-input-container"
-                :class="opts.inputContainerClass"
-              >
-                <input
-                  v-if="['text', 'number'].includes(head.editable)"
-                  class="v-table-input"
-                  :class="opts.inputClass"
-                  :type="head.editable"
-                  :value="nestedTitle(item, head.title)"
-                  @input="$emit('editableInput', a, head.title, $event.target.value)"
-                  @change="$emit('editableChange', a, head.title, $event.target.value)"
-                />
-                <select
-                  v-if="head.editable === 'select'"
-                  :class="opts.inputClass"
-                  class="v-table-input"
-                  :value="nestedTitle(item, head.title)"
-                  @input="$emit('editableInput', a, head.title, $event.target.value)"
-                  @change="$emit('editableChange', a, head.title, $event.target.value)"
-                >
-                  <option v-for="o in head.options" :key="o.id" :value="o.id">
-                    {{ o.label }}
-                  </option>
-                </select>
-              </div>
-              <div v-else class="v-table-checkbox-container" :class="opts.checkboxContainerClass">
-                <input
-                  class="v-table-checkbox"
-                  :class="opts.checkboxClass"
-                  :type="head.editable"
-                  :checked="nestedTitle(item, head.title)"
-                  @input="$emit('editableInput', a, head.title, $event.target.checked)"
-                  @change="$emit('editableChange', a, head.title, $event.target.checked)"
-                />
-              </div>
-            </template>
-
-            <template v-else>
-              <span v-if="head.htmlFormat === true" v-html="parseValue(item, head)" />
-              <div v-else :title="parseValue(item, head, true)">
-                <b v-if="head.strong">
-                  {{ parseValue(item, head) }}
-                </b>
-                <span v-else>
-                  {{ parseValue(item, head) }}
-                </span>
-              </div>
-            </template>
-          </td>
-
-          <td class="vt-actions-cell" v-if="actions?.length">
-            <div>
-              <button
-                v-if="canMoveRows"
-                class="btn btn-sm btn-borderless-dark"
-                @click.stop="actionSortRow(item, 'decrease')"
-                style="position: relative"
-              >
-                <i class="fa-solid fa-arrow-up"></i>
-              </button>
-              <button
-                v-if="canMoveRows"
-                class="btn btn-sm btn-borderless-dark"
-                @click.stop="actionSortRow(item, 'increase')"
-                style="position: relative"
-              >
-                <i class="fa-solid fa-arrow-down"></i>
-              </button>
-              <FormDropdown position="bottom">
-                <template #action="{ open }">
-                  <button class="btn btn-sm btn-borderless-dark actions-btn" @click.stop="open">
-                    <i class="fa fa-ellipsis"></i>
-                  </button>
-                </template>
-                <template #default="{ close }">
-                  <template v-for="(act, i) in actions">
-                    <div :key="i" v-if="!act.hideWhenFn || !act.hideWhenFn(item)">
-                      <router-link
-                        v-if="act.to"
-                        :to="act.to(item)"
-                        class="btn btn-borderless-dark justify-content-left text-left w-100"
-                      >
-                        <small>{{ act.title }}</small>
-                      </router-link>
-                      <button
-                        v-else
-                        class="btn btn-borderless-dark justify-content-left text-left w-100"
-                        @click.stop="actionClicked(act, item, a, close)"
-                        @click.stop.middle="actionClicked(act, item, a, close, true)"
-                      >
-                        <small>{{ act.title }}</small>
-                      </button>
-                    </div>
-                  </template>
-                </template>
-              </FormDropdown>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-      <tfoot v-if="values.data && values.data.length <= 0">
-        <tr>
-          <td colspan="1000" style="text-align: center">No data to show</td>
-        </tr>
-      </tfoot>
-      <tfoot v-else-if="$slots.footer">
-        <tr>
-          <slot name="footer" />
-        </tr>
-      </tfoot>
-    </table>
+        </tbody>
+        <tfoot v-if="values.data && values.data.length <= 0">
+          <tr>
+            <td colspan="1000" style="text-align: center">{{ lang.noDataToShow }}</td>
+          </tr>
+        </tfoot>
+        <tfoot v-else-if="$slots.footer">
+          <tr>
+            <slot name="footer" />
+          </tr>
+        </tfoot>
+      </table>
+    </div>
 
     <VueTablePager
       :from="values.from"
       :to="values.to"
       :total="values.total"
       :last-page="values.last_page"
+      :actual-page="values.current_page"
+      :lang="lang.pager"
       @changing_page="pageChanged"
     />
   </div>
@@ -231,10 +249,12 @@
  *
  * # FILTERS
  * - title
- * - type: select/select-multiple/combobox/date/date-range/number
- * - options: array/null
+ * - type: select/select-multiple/combobox/date/date-range/number/boolean
+ * - options: array/null (only for select/select-multiple without module)
  * - column // Column to filter
  * - module: string/null (only for combobox/select)
+ * - all_option: string/null (only for select with module)
+ * - default_value: optional, default value for filter
  *
  * # OPTIONS
  * - tableClass
@@ -253,6 +273,7 @@ import FormDropdown from '@/components/Form/FormDropdown.vue'
 import loader from './loader.vue'
 import { parseToString, parseToLocale } from '@/utils/date'
 import { useClickAndHold } from './utils/useClickAndHold'
+import { formatCentsToMoney } from '@/utils/string'
 
 export default {
   name: 'VueTables',
@@ -303,9 +324,51 @@ export default {
       type: Boolean,
       default: false
     },
+    searchable: {
+      type: Boolean,
+      default: true
+    },
+    initialGetter: {
+      type: Boolean,
+      default: true
+    },
     checkeable: Boolean,
     clickeableRows: Boolean,
-    searchHelper: String
+    searchHelper: String,
+    lang: {
+      type: Object,
+      default: () => ({
+        noDataToShow: 'No hay datos para mostrar',
+        searchTooShort: 'El valor de búsqueda es demasiado corto',
+        filters: {
+          searchPlaceholder: 'Buscar...',
+          filters: 'Filtros',
+          clearFilters: 'Limpiar filtros',
+          export: 'Exportar XLS',
+          lastUpdate: 'Última actualización',
+          filtersModal: {
+            title: 'FILTROS',
+            showItems: 'Mostrar elementos',
+            sortBy: 'Ordenar por',
+            hiddenColumns: 'Columnas ocultas',
+            clearAll: 'Limpiar todo',
+            applyFilters: 'Aplicar filtros'
+          }
+        },
+        pager: {
+          showingEntries:
+            'Mostrando desde <b>{from}</b> hasta <b>{to}</b> de <b>{total}</b> entradas',
+          first: 'Primero',
+          last: 'Último',
+          next: 'Siguiente',
+          previous: 'Anterior'
+        },
+        booleanValues: {
+          true: 'SI',
+          false: 'NO'
+        }
+      })
+    }
   },
   data() {
     return {
@@ -328,7 +391,7 @@ export default {
         search: null,
         sort_by: null,
         sort_dir: null,
-        per_page: 10,
+        per_page: 25,
         hidden_cols: [],
         filters: null
       },
@@ -349,7 +412,7 @@ export default {
   watch: {
     checkAll: {
       handler(val) {
-        this.$emit('checkAll', val)
+        this.$emit('checked', { all: true, value: val })
       }
     }
   },
@@ -364,14 +427,17 @@ export default {
     if (!this.headers)
       throw new Error('Input HEADERS is empty, please add data. (eg.: :headers="myHeaders")')
 
+    // Validate lang property
+    if (this.lang && this.lang !== this.$options.props.lang.default()) {
+      const defaultLang = this.$options.props.lang.default()
+      this.validateLangObject(this.lang, defaultLang, 'lang')
+    }
+
     if (this.options) {
       Object.keys(this.options).forEach((key) => {
         if (key in this.opts) {
           if (key === 'checkeable' && typeof this.options[key] !== 'boolean') {
             throw new Error('Options "checkeable" must be a Boolean')
-          }
-          if (key === 'searchable' && typeof this.options[key] !== 'boolean') {
-            throw new Error('Options "searchable" must be a Boolean')
           }
           this.opts[key] = this.options[key]
         }
@@ -379,13 +445,28 @@ export default {
     }
   },
   methods: {
+    validateLangObject(obj, defaultObj, path = '') {
+      for (const key in defaultObj) {
+        const currentPath = path ? `${path}.${key}` : key
+
+        if (typeof defaultObj[key] === 'object' && defaultObj[key] !== null) {
+          if (!obj[key] || typeof obj[key] !== 'object') {
+            console.warn(`Missing or invalid lang key: ${currentPath}`)
+          } else {
+            this.validateLangObject(obj[key], defaultObj[key], currentPath)
+          }
+        } else if (!(key in obj)) {
+          console.warn(`Missing lang key: ${currentPath}`)
+        }
+      }
+    },
     pageChanged(val) {
       this.vTableParams.page = val
       this.changed()
     },
     searched(val) {
       if (val && val.length <= this.searchMinLen) {
-        this.$toast.error('Search value is too short')
+        this.$toast.error(this.lang.searchTooShort)
         return
       }
 
@@ -494,20 +575,13 @@ export default {
         if (head.booleanValues) {
           result = head.booleanValues[result === true]
         } else {
-          const defaultValues = { true: 'YES', false: 'NO' }
-          result = defaultValues[result == true]
+          result = this.lang.booleanValues[result == true]
         }
       } else if (head.callback !== undefined) result = head.callback(result)
 
       if (head.pre) {
         if (['€', '$'].includes(head.pre)) {
-          if (typeof result === 'number') {
-            result = `${head.pre}${result.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`
-          } else {
-            result = `${head.pre}${parseFloat(result)
-              .toFixed(2)
-              .replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`
-          }
+          result = `${head.pre}${formatCentsToMoney(result)}`
         } else result = `${head.pre}${result}`
       }
       if (head.after) result = `${result}${head.after}`
@@ -529,12 +603,12 @@ export default {
 
     init() {
       this.$emit('changed', {
-        search: null,
         sort_by: null,
         sort_dir: null,
+        search: this.vTableParams.search,
         ...this.parseFilters(this.vTableParams.filters),
-        page: 1,
-        per_page: 10
+        page: this.values.current_page || 1,
+        per_page: this.values.per_page || 10
       })
     },
 
@@ -545,10 +619,11 @@ export default {
     onExport() {
       this.$emit('onExport', this.parseFilters(this.vTableParams.filters))
     },
-    actionSortRow(row, action) {
+    actionSortRow(item, action) {
       this.$emit('onChangeOrder', {
-        row,
-        newSort: action === 'increase' ? row.sort + 1 : row.sort - 1
+        item,
+        modifier: action === 'increase' ? 1 : -1,
+        newSort: action === 'increase' ? item.sort + 1 : item.sort - 1
       })
     },
     handleClick(item, index) {
@@ -559,6 +634,9 @@ export default {
     rowClicked(item, index, middleBtn = false) {
       if (!this.clickeableRows) return
       this.$emit('rowClicked', item, index, middleBtn)
+    },
+    itemHasActions(item, actions) {
+      return actions.some((action) => !action.hideWhenFn || !action.hideWhenFn(item))
     }
   }
 }

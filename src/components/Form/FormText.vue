@@ -1,9 +1,16 @@
 <template>
   <div
     class="form-container"
-    :class="{ disabled, 'form-textarea': textarea, 'flex-field': flexField }"
+    :class="{
+      disabled,
+      'form-textarea': textarea,
+      'flex-field': flexField,
+      'input-error': errors?.length
+    }"
   >
-    <label :for="itemId" v-if="label">{{ label }}</label>
+    <label :for="itemId" v-if="label">
+      {{ label }} <small v-if="description" class="text-muted">{{ description }}</small>
+    </label>
     <div class="form-wrapper">
       <div class="icon" v-if="icon">
         <i :class="icon"></i>
@@ -25,7 +32,7 @@
         :rows="textareaRows"
         :id="itemId"
         v-model="result"
-        :disabled="disabled"
+        :readonly="disabled"
         v-else
       />
 
@@ -37,6 +44,9 @@
       :class="{ 'text-danger': (modelValue ? modelValue.length : 0) > maxChars }"
     >
       {{ maxChars - (modelValue ? modelValue.length : 0) }}/{{ maxChars }} characters
+    </p>
+    <p v-if="errors?.length" class="error-message">
+      {{ errors.join(', ') }}
     </p>
   </div>
 </template>
@@ -50,6 +60,7 @@ export default {
     },
     label: String,
     placeholder: String,
+    description: String,
     icon: {
       type: String,
       default: null
@@ -81,6 +92,10 @@ export default {
     isPhone: {
       type: Boolean,
       default: false
+    },
+    errors: {
+      type: Array,
+      default: null
     }
   },
   data: () => ({

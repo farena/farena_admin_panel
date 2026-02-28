@@ -4,7 +4,7 @@
       <input
         v-if="searchable"
         type="text"
-        placeholder="Search..."
+        :placeholder="lang.searchPlaceholder"
         class="form-control"
         @keyup.enter="search"
       />
@@ -22,17 +22,17 @@
           @click="clearFilters"
           v-if="activeFilters"
         >
-          Clear filters
+          {{ lang.clearFilters }}
         </a>
 
         <button class="btn btn-sm btn-dark" @click="showFilters = true">
           <i class="material-symbols-outlined"> tune </i>
-          <span>Filters</span>
+          <span>{{ lang.filters }}</span>
           <span class="badge badge-white" v-if="activeFilters">{{ activeFilters }}</span>
         </button>
         <button class="btn btn-sm btn-dark" v-if="exportable" @click="$emit('onExport')">
           <i class="fa fa-file-excel mr-2"></i>
-          <span>Export XLS</span>
+          <span>{{ lang.export }}</span>
         </button>
       </div>
 
@@ -46,6 +46,7 @@
         :showOpts="showOpts"
         :hideOpts="hideOpts"
         :filters="filters"
+        :lang="lang.filtersModal"
       />
     </div>
   </div>
@@ -84,6 +85,28 @@ export default {
     searchHelper: {
       type: String,
       default: ''
+    },
+    lang: {
+      type: Object,
+      default: () => ({
+        searchPlaceholder: 'Search...',
+        filters: 'Filters',
+        clearFilters: 'Clear filters',
+        export: 'Export XLS',
+        lastUpdate: 'Last update',
+        filtersModal: {
+          title: 'FILTERS',
+          showItems: 'Show Items',
+          sortBy: 'Sort By',
+          hiddenColumns: 'Hidden Columns',
+          clearAll: 'Clear All',
+          applyFilters: 'Apply filters'
+        }
+      })
+    },
+    initialGetter: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['onExport', 'filter', 'search'],
@@ -100,11 +123,12 @@ export default {
         'select-multiple': [],
         date: null,
         'date-range': { start: null, end: null },
-        combobox: null
+        combobox: null,
+        boolean: false
       },
       resultDefault: '',
       result: {
-        showing: 10,
+        showing: 25,
         sort: null,
         hidden: []
       }
@@ -117,7 +141,7 @@ export default {
       return [
         {
           value: 'null',
-          label: 'Last update'
+          label: this.lang.lastUpdate
         },
         ...sortableCols.map((x) => ({
           value: `${x.sort_value || x.title}__asc`,
@@ -180,7 +204,7 @@ export default {
         }
       }
 
-      this.applyFilters(this.result)
+      this.applyFilters(this.result, this.initialGetter)
     },
     saveFilters(evt) {
       this.result = evt
@@ -195,8 +219,16 @@ export default {
 
       const aux = JSON.parse(JSON.stringify(evt))
       Object.keys(aux).forEach((key) => {
-        if (aux[key]?.[key]) {
+        if (!aux[key]) return
+
+        // If the value is an object with a key of the same name, use the value of that key
+        if (aux[key][key]) {
           aux[key] = aux[key][key]
+        }
+
+        // if the value is an array, and the array has a key of the same name, use the value of that key
+        if (Array.isArray(aux[key]) && aux[key].length && aux[key][0][key]) {
+          aux[key] = aux[key].map((x) => x[key])
         }
       })
 

@@ -1,8 +1,8 @@
 <template>
-  <div class="form-container form-html" :class="{ disabled }">
+  <div class="form-container form-html" :class="{ disabled, 'input-error': errors?.length }">
     <label v-if="label">
       {{ label }}
-      <small class="text-muted"> Use ctrl+enter to create small line breaks </small>
+      <small class="text-muted"> Usa ctrl+enter para crear saltos de línea pequeños </small>
     </label>
     <div class="form-wrapper">
       <ckeditor
@@ -12,12 +12,17 @@
         @ready="editorRef = $event"
       ></ckeditor>
     </div>
+    <p v-if="errors?.length" class="error-message">
+      {{ errors.join(', ') }}
+    </p>
   </div>
 </template>
 
 <script>
 import {
   ClassicEditor,
+  Table,
+  TableToolbar,
   Bold,
   Essentials,
   Italic,
@@ -27,7 +32,10 @@ import {
   Undo,
   FontFamily,
   FontSize,
-  FontColor
+  FontColor,
+  AutoLink,
+  Link,
+  List
 } from 'ckeditor5'
 import 'ckeditor5/ckeditor5.css'
 import ckeditor from '@/plugins/CKeditor'
@@ -47,7 +55,11 @@ export default {
       default: false
     },
     autocompleteOpts: Array,
-    placeholder: String
+    placeholder: String,
+    errors: {
+      type: Array,
+      default: null
+    }
   },
   data: () => ({
     editor: ClassicEditor,
@@ -66,7 +78,12 @@ export default {
           FontFamily,
           FontSize,
           Mention,
-          FontColor
+          FontColor,
+          Table,
+          TableToolbar,
+          AutoLink,
+          Link,
+          List
         ],
         toolbar: [
           'undo',
@@ -78,8 +95,23 @@ export default {
           'italic',
           'fontfamily',
           'fontsize',
-          'fontColor'
+          'fontColor',
+          '|',
+          'insertTable',
+          '|',
+          'link',
+          '|',
+          'numberedList',
+          'bulletedList'
         ],
+        link: {
+          addTargetToExternalLinks: true,
+          defaultProtocol: 'http://',
+          toolbar: ['editLink', 'linkProperties', 'unlink']
+        },
+        table: {
+          contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+        },
         mention: !this.autocompleteOpts
           ? {}
           : {

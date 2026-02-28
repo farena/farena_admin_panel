@@ -1,12 +1,7 @@
 <template>
   <div class="v-table-pager">
     <div class="vt-results">
-      <span v-if="from">
-        Showing from
-        <b>{{ from }}</b> to <b>{{ to }}</b> of
-        <b>{{ total }}</b>
-        entries.
-      </span>
+      <span v-if="from" v-html="formatShowingEntries()"></span>
     </div>
     <ul>
       <li
@@ -14,7 +9,7 @@
         :class="current_page - 1 === 0 ? 'disabled' : ''"
         @click.prevent="changePage(1)"
       >
-        First
+        {{ lang.first }}
       </li>
       <li
         v-for="page in pages_list"
@@ -30,7 +25,7 @@
         :class="!lastPage || current_page + 1 > lastPage ? 'disabled' : ''"
         @click.prevent="changePage(lastPage)"
       >
-        Last
+        {{ lang.last }}
       </li>
 
       <li
@@ -38,14 +33,14 @@
         :class="current_page - 1 === 0 ? 'disabled' : ''"
         @click.prevent="changePage(current_page - 1)"
       >
-        Prev
+        {{ lang.previous }}
       </li>
       <li
         class="vt-mobile"
         :class="current_page + 1 > lastPage ? 'disabled' : ''"
         @click.prevent="changePage(current_page + 1)"
       >
-        Next
+        {{ lang.next }}
       </li>
     </ul>
   </div>
@@ -73,6 +68,16 @@ export default {
     actualPage: {
       type: [Number, String],
       default: 1
+    },
+    lang: {
+      type: Object,
+      default: () => ({
+        showingEntries: 'Showing from <b>{from}</b> to <b>{to}</b> of <b>{total}</b> entries',
+        first: 'First',
+        last: 'Last',
+        next: 'Next',
+        previous: 'Prev'
+      })
     }
   },
   data() {
@@ -88,12 +93,22 @@ export default {
     },
     actualPage(val) {
       this.current_page = val
+      this.doPagesList()
     }
   },
   mounted() {
     this.doPagesList()
   },
   methods: {
+    formatShowingEntries() {
+      if (!this.from) return ''
+
+      return this.lang.showingEntries
+        .replace('{from}', this.from)
+        .replace('{to}', this.to)
+        .replace('{total}', this.total)
+    },
+
     doPagesList() {
       // Reseteo la lista
       this.pages_list = []

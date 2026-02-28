@@ -193,3 +193,22 @@ a.link-underlined {
 .nowrap {
   white-space: nowrap;
 }
+
+.h-input {
+  height: var(--input-height) !important;
+}
+.pt-label {
+  padding-top: var(--label-height);
+}
+.mt-label {
+  margin-top: calc(var(--label-height) + 2px) !important;
+  height: var(--input-height) !important;
+}
+
+// Text overflow utilities
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}

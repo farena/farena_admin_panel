@@ -2,14 +2,18 @@
   <VueModal size="md" position="right" class="vt-filters-modal" ref="modal">
     <template #title>
       <span class="material-symbols-outlined"> tune </span>
-      <span>FILTERS</span>
+      <span>{{ lang.title }}</span>
     </template>
     <template #body>
-      <VueTableFiltersSection label="Show Items" :options="showOpts" v-model="result.showing" />
-      <VueTableFiltersSection label="Sort By" :options="sortOpts" v-model="result.sort" />
+      <VueTableFiltersSection
+        :label="lang.showItems"
+        :options="showOpts"
+        v-model="result.showing"
+      />
+      <VueTableFiltersSection :label="lang.sortBy" :options="sortOpts" v-model="result.sort" />
       <VueTableFiltersSection
         section-type="select-multiple"
-        label="Hidden Columns"
+        :label="lang.hiddenColumns"
         :options="hideOpts"
         v-model="result.hidden"
         v-if="hideOpts.length"
@@ -22,12 +26,15 @@
         :options="f.options"
         :label="f.title"
         :moduleName="f.module"
+        :allOption="f.all_option"
+        :extra-attrs="f.extra_attrs"
+        :hidden="f.hideWhenFn && f.hideWhenFn(f)"
         v-model="result[f.column]"
       />
     </template>
     <template #footer>
-      <a href="#" class="underlined text-dark" @click="clearAll">Clear All</a>
-      <button class="btn btn-sm btn-dark" @click="applyFilters">Apply filters</button>
+      <a href="#" class="underlined text-dark" @click="clearAll">{{ lang.clearAll }}</a>
+      <button class="btn btn-sm btn-dark" @click="applyFilters">{{ lang.applyFilters }}</button>
     </template>
   </VueModal>
 </template>
@@ -57,6 +64,17 @@ export default {
     filters: {
       type: Array,
       default: () => []
+    },
+    lang: {
+      type: Object,
+      default: () => ({
+        title: 'FILTERS',
+        showItems: 'Show Items',
+        sortBy: 'Sort By',
+        hiddenColumns: 'Hidden Columns',
+        clearAll: 'Clear All',
+        applyFilters: 'Apply filters'
+      })
     }
   },
   components: {

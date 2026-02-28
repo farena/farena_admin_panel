@@ -1,6 +1,6 @@
 <template>
   <Teleport to="#modal-container">
-    <transition name="fade" @after-enter="showContent = true">
+    <transition name="fade" @after-enter="afterEnter">
       <div
         class="vue-modal"
         :class="`position-${position}`"
@@ -45,7 +45,7 @@ export default {
       open: false
     }
   },
-  emits: ['close', 'onSave'],
+  emits: ['close', 'onSave', 'onLoad'],
   props: {
     size: {
       validator: (value) => ['xs', 'sm', 'md', 'lg'].includes(value),
@@ -80,6 +80,10 @@ export default {
     },
     endClose() {
       this.$emit('close')
+    },
+    afterEnter() {
+      this.showContent = true
+      this.$emit('onLoad')
     }
   }
 }

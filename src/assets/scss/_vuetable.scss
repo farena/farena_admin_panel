@@ -3,6 +3,21 @@
   gap: 1em;
   overflow: hidden;
 
+  .v-table-container {
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
+
+  &.v-table-full-height {
+    height: 100%;
+    grid-template-rows: auto 1fr auto;
+
+    .v-table-container {
+      overflow-y: auto;
+      min-height: 0;
+    }
+  }
+
   table {
     max-width: 100%;
     margin-bottom: 0;
@@ -52,13 +67,6 @@
     td.v-table-just-button {
       padding: 0 !important;
     }
-    .btn.btn-sm {
-      padding: 4px;
-      width: 25px;
-      aspect-ratio: 1;
-      display: grid;
-      place-items: center;
-    }
 
     tfoot tr td {
       padding-top: 20px !important;
@@ -66,6 +74,14 @@
 
     .vt-actions-cell > div {
       display: flex;
+
+      .btn.btn-sm {
+        padding: 4px;
+        width: 25px;
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+      }
     }
 
     @media (max-width: 768px) {

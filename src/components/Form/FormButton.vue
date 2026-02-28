@@ -4,7 +4,8 @@
     class="btn"
     :class="[
       { 'btn-block': block, 'btn-sm': small, disabled, 'btn-rounded': justIcon },
-      `btn-${outlined ? 'outline-' : ''}${theme}`
+      `btn-${outlined ? 'outline-' : ''}${theme}`,
+      { 'btn-plain': plain }
     ]"
     @mouseover="adjustTooltipPosition"
     ref="button"
@@ -27,7 +28,8 @@
     class="btn"
     :class="[
       { 'btn-block': block, 'btn-sm': small, disabled, 'btn-rounded': justIcon },
-      `btn-${outlined ? 'outline-' : ''}${theme}`
+      `btn-${outlined ? 'outline-' : ''}${theme}`,
+      { 'btn-plain': plain }
     ]"
     v-else-if="typeof to === 'string' && to.slice(0, 4) === 'http'"
     @mouseover="adjustTooltipPosition"
@@ -35,6 +37,9 @@
   >
     <div :class="['tooltip', tooltipPosition]" v-if="tooltip" ref="tooltip">
       {{ tooltip }}
+    </div>
+    <div class="icon" v-if="icon">
+      <i class="fa" :class="icon"></i>
     </div>
 
     <span v-if="hasDefaultSlot">
@@ -48,13 +53,17 @@
     class="btn"
     :class="[
       { 'btn-block': block, 'btn-sm': small, disabled, 'btn-rounded': justIcon },
-      `btn-${outlined ? 'outline-' : ''}${theme}`
+      `btn-${outlined ? 'outline-' : ''}${theme}`,
+      { 'btn-plain': plain }
     ]"
     @mouseover="adjustTooltipPosition"
     ref="button"
   >
     <div :class="['tooltip', tooltipPosition]" v-if="tooltip" ref="tooltip">
       {{ tooltip }}
+    </div>
+    <div class="icon" v-if="icon">
+      <i class="fa" :class="icon"></i>
     </div>
 
     <span v-if="hasDefaultSlot">
@@ -103,6 +112,10 @@ export default {
     tooltipContainer: {
       type: [String, HTMLElement],
       default: '.content-wrapper'
+    },
+    plain: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

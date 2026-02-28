@@ -1,22 +1,50 @@
 <template>
   <div
     class="filters-section"
-    :class="{ collapse: isCollapse, collapsed: isCollapse && collapsed }"
+    :class="{
+      collapse: isCollapse,
+      collapsed: isCollapse && collapsed,
+      hidden
+    }"
   >
     <FormSelect
       :label="label"
       flex-field
       :options="options"
       v-model="result"
-      v-if="sectionType === 'select' && !moduleName"
+      v-if="['select', 'select-multiple'].includes(sectionType) && !moduleName"
+      :multiple="sectionType === 'select-multiple'"
+      :allOption="allOption"
+      v-bind="extraAttrs"
     />
-    <FormNumber :label="label" flex-field v-model="result" v-else-if="sectionType === 'number'" />
-    <FormDate :label="label" flex-field v-model="result" v-else-if="sectionType === 'date'" />
+    <FormBoolean
+      :label="label"
+      flex-field
+      v-model="result"
+      v-else-if="sectionType === 'boolean'"
+      :allOption="allOption"
+      v-bind="extraAttrs"
+    />
+    <FormNumber
+      :label="label"
+      flex-field
+      v-model="result"
+      v-else-if="sectionType === 'number'"
+      v-bind="extraAttrs"
+    />
+    <FormDate
+      :label="label"
+      flex-field
+      v-model="result"
+      v-else-if="sectionType === 'date'"
+      v-bind="extraAttrs"
+    />
     <FormDateRange
       :label="label"
       flex-field
       v-model="result"
       v-else-if="sectionType === 'date-range'"
+      v-bind="extraAttrs"
     />
     <component
       v-else-if="sectionType === 'combobox'"
@@ -24,13 +52,18 @@
       :label="label"
       v-model="result"
       :is="comboComponent"
+      v-bind="extraAttrs"
     />
     <component
-      v-else-if="sectionType === 'select' && moduleName"
+      v-else-if="['select', 'select-multiple'].includes(sectionType) && moduleName"
       flex-field
       :label="label"
       v-model="result"
+      :allOption="allOption"
       :is="selectComponent"
+      :multiple="sectionType === 'select-multiple'"
+      noClearBtn
+      v-bind="extraAttrs"
     />
 
     <template v-else>
@@ -61,9 +94,9 @@ import FormSelect from '@/components/Form/FormSelect.vue'
 import FormNumber from '@/components/Form/FormNumber.vue'
 import FormDate from '@/components/Form/FormDate.vue'
 import FormDateRange from '@/components/Form/FormDateRange.vue'
-import UsersCombobox from '@/components/Comboboxes/UsersCombobox.vue'
 import Comboboxes from '@/components/Comboboxes/_combos-modules.js'
 import Selects from '@/components/Selects/_select-modules.js'
+import FormBoolean from '@/components/Form/FormBoolean.vue'
 
 export default {
   components: {
@@ -71,18 +104,26 @@ export default {
     FormDate,
     FormDateRange,
     FormSelect,
-    UsersCombobox,
-    FormNumber
+    FormNumber,
+    FormBoolean
   },
   props: {
     modelValue: {
-      type: [Number, String, Array, Object],
+      type: [Number, String, Array, Object, Boolean],
       default: null
     },
     sectionType: {
       type: String,
       validator: (value) =>
-        ['select', 'select-multiple', 'date', 'date-range', 'combobox', 'number'].includes(value),
+        [
+          'select',
+          'select-multiple',
+          'date',
+          'date-range',
+          'combobox',
+          'number',
+          'boolean'
+        ].includes(value),
       default: 'select'
     },
     options: {
@@ -96,6 +137,18 @@ export default {
     moduleName: {
       type: String,
       default: null
+    },
+    allOption: {
+      type: String,
+      default: null
+    },
+    extraAttrs: {
+      type: Object,
+      default: () => {}
+    },
+    hidden: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -108,7 +161,8 @@ export default {
       }
     },
     isCollapse() {
-      return ['select-multiple'].includes(this.sectionType)
+      return false
+      // return ['select-multiple'].includes(this.sectionType)
     },
     comboComponent() {
       return Comboboxes[this.moduleName]

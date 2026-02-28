@@ -22,7 +22,8 @@
             <input
               v-model="item.checked"
               type="checkbox"
-              @click="$emit('itemChecked', ix, $event.target.checked)"
+              @click.stop="$emit('checked', { all: false, value: $event.target.checked, index: a })"
+              v-if="item.checkeable"
             />
           </div>
         </td>
@@ -65,7 +66,7 @@
                       :to="act.to(item)"
                       class="btn btn-borderless-dark justify-content-left btn-sm w-100"
                     >
-                      <span>{{ act.title }}</span>
+                      <small>{{ act.title }}</small>
                     </router-link>
                     <button
                       v-else
@@ -73,7 +74,7 @@
                       @click="actionClicked(act, item, ix, close)"
                       @click.middle="actionClicked(act, item, ix, close, true)"
                     >
-                      <span>{{ act.title }}</span>
+                      <small>{{ act.title }}</small>
                     </button>
                   </div>
                 </template>
@@ -83,8 +84,8 @@
         </td>
       </tr>
       <tr v-if="!values?.length">
-        <td colspan="5" class="text-center">
-          <div class="text-muted">{{ noDataMessage }}</div>
+        <td colspan="1000" class="text-center">
+          <div class="text-muted">{{ lang.noDataToShow }}</div>
         </td>
       </tr>
     </tbody>
@@ -124,6 +125,7 @@
  */
 import FormDropdown from '@/components/Form/FormDropdown.vue'
 import { parseToString, parseToLocale } from '@/utils/date'
+import { formatCentsToMoney } from '@/utils/string'
 
 export default {
   props: {
@@ -143,7 +145,17 @@ export default {
       type: String,
       default: 'No data to show'
     },
-    checkeable: Boolean
+    checkeable: Boolean,
+    lang: {
+      type: Object,
+      default: () => ({
+        noDataToShow: 'No data to show',
+        booleanValues: {
+          true: 'YES',
+          false: 'NO'
+        }
+      })
+    }
   },
   components: {
     FormDropdown
@@ -154,14 +166,34 @@ export default {
   watch: {
     checkAll: {
       handler(val) {
-        this.values.forEach((x) => {
-          x.checked = val
-        })
-        this.$emit('checkAll', val)
+        this.$emit('checked', { all: true, value: val })
       }
     }
   },
+  mounted() {
+    // Validate lang property
+    if (this.lang && this.lang !== this.$options.props.lang.default()) {
+      const defaultLang = this.$options.props.lang.default()
+      this.validateLangObject(this.lang, defaultLang, 'lang')
+    }
+  },
   methods: {
+    validateLangObject(obj, defaultObj, path = '') {
+      for (const key in defaultObj) {
+        const currentPath = path ? `${path}.${key}` : key
+
+        if (typeof defaultObj[key] === 'object' && defaultObj[key] !== null) {
+          if (!obj[key] || typeof obj[key] !== 'object') {
+            console.warn(`Missing or invalid lang key: ${currentPath}`)
+          } else {
+            this.validateLangObject(obj[key], defaultObj[key], currentPath)
+          }
+        } else if (!(key in obj)) {
+          console.warn(`Missing lang key: ${currentPath}`)
+        }
+      }
+    },
+
     nestedTitle(item, val) {
       const value = item[val]
       if (!value) {
@@ -186,20 +218,13 @@ export default {
         if (head.booleanValues) {
           result = head.booleanValues[result === true]
         } else {
-          const defaultValues = { true: 'YES', false: 'NO' }
-          result = defaultValues[result == true]
+          result = this.lang.booleanValues[result == true]
         }
       } else if (head.callback !== undefined) result = head.callback(result)
 
       if (head.pre) {
         if (['€', '$'].includes(head.pre)) {
-          if (typeof result === 'number') {
-            result = `${head.pre}${result.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`
-          } else {
-            result = `${head.pre}${parseFloat(result)
-              .toFixed(2)
-              .replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`
-          }
+          result = `${head.pre}${formatCentsToMoney(result)}`
         } else result = `${head.pre}${result}`
       }
       if (head.after) result = `${result}${head.after}`

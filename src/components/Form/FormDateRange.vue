@@ -11,7 +11,7 @@
     <template v-slot="{ inputValue, inputEvents }">
       <div
         class="form-container form-date"
-        :class="{ disabled, 'flex-field': flexField }"
+        :class="{ disabled, 'flex-field': flexField, 'input-error': errors?.length }"
         v-bind="$attrs"
       >
         <label v-if="label">{{ label }}</label>
@@ -30,6 +30,9 @@
             <input :value="inputValue.end" v-on="inputEvents.end" />
           </div>
         </div>
+        <p v-if="errors?.length" class="error-message">
+          {{ errors.join(', ') }}
+        </p>
       </div>
     </template>
 
@@ -81,6 +84,10 @@ export default {
     customRanges: {
       type: Array,
       default: () => []
+    },
+    errors: {
+      type: Array,
+      default: null
     }
   },
   data: () => ({
