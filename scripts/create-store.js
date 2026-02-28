@@ -1,15 +1,15 @@
 /* eslint-disable no-undef */
 const fs = require('fs')
-const parseTemplate = require('./utils/template-parser.js')
 const { checkFolder, createFile, getFile } = require('./utils/folders.js')
+const storeTemplate = require('./templates/store.js')
 
-module.exports = function createStore(nameVariants) {
-  createStoreFile(nameVariants)
+module.exports = function createStore(nameVariants, useCases = []) {
+  createStoreFile(nameVariants, useCases)
   injectStore(nameVariants)
 }
 
-function createStoreFile(nameVariants) {
-  const template = parseTemplate(nameVariants, '../templates/store.txt')
+function createStoreFile(nameVariants, useCases) {
+  const template = storeTemplate(nameVariants, useCases)
 
   checkFolder(`../../src/store`)
   createFile(`../../src/store/_${nameVariants.pluralSC}.js`, template)
@@ -30,7 +30,7 @@ function injectStore({ pluralSC }) {
   })
 
   // Import new Store
-  fileLines.splice(lineToAppendImport, 0, `import ${pluralSC} from './${pluralSC}';`)
+  fileLines.splice(lineToAppendImport, 0, `import ${pluralSC} from './_${pluralSC}';`)
 
   // Export new Store
   fileLines.splice(lineToAppendExport, 0, `    ${pluralSC},`)
