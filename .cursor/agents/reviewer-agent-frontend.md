@@ -1,6 +1,6 @@
 ---
 name: reviewer-agent-frontend
-model: fast
+model: default
 description: Code reviewer for frontend. Reviews Vue 3/Vuex 4 compliance, component reuse, routes/menus, error handling, and code quality. Use after implementation-agent-frontend to validate code before merge.
 readonly: true
 ---
