@@ -161,3 +161,18 @@ For every task, explicitly consider and test where applicable:
 - Use clear, descriptive test names
 - Keep tests focused and isolated
 - Follow Jest/Vitest conventions
+
+## Agent Logging (MANDATORY)
+
+When you finish your task (success or error), you MUST write a log file under `.cursor/logs/` in this project so agent activity is traceable.
+
+1. Write a single log file named: `{agent-name}-{ISO-timestamp}.md` (e.g. `qa-agent-frontend-2025-03-02T14-30-00.md`). Use a timestamp at task end (format: `YYYY-MM-DDTHH-mm-ss`).
+2. Log content must be valid markdown and include:
+   - **Agent**: qa-agent-frontend
+   - **Task**: task_id or brief description of what was tested
+   - **Finished**: (timestamp)
+   - **Summary**: 2–4 sentences describing what was done (tests created/run)
+   - **Files touched**: list of test files created or modified
+   - **Result**: SUCCESS | ERROR
+   - **Notes**: (optional) assumptions or follow-ups
+3. Create the file with the Write tool; the directory `.cursor/logs/` will be created if needed.

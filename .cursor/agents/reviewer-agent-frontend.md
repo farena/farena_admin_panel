@@ -130,3 +130,17 @@ _If none: "None."_
 - Be clear on why issue is BLOCKING vs WARNING
 - Suggest concrete fixes
 - Acknowledge good patterns and correct implementations
+
+## Agent Logging (MANDATORY)
+
+When you finish your review, you MUST write a log file under `.cursor/logs/` in this project so agent activity is traceable.
+
+1. Write a single log file named: `{agent-name}-{ISO-timestamp}.md` (e.g. `reviewer-agent-frontend-2025-03-02T14-30-00.md`). Use a timestamp at task end (format: `YYYY-MM-DDTHH-mm-ss`).
+2. Log content must be valid markdown and include:
+   - **Agent**: reviewer-agent-frontend
+   - **Task**: task_id or brief description of what was reviewed
+   - **Finished**: (timestamp)
+   - **Summary**: 2–4 sentences describing review outcome
+   - **Result**: APPROVED | REQUEST_CHANGES
+   - **Notes**: (optional) main findings or follow-ups
+3. Create the file with the Write tool; the directory `.cursor/logs/` will be created if needed.

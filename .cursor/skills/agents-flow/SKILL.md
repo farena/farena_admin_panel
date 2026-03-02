@@ -1,5 +1,5 @@
 ---
-name: yrfitness-admin-agents-flow
+name: agents-flow
 description: Explains how to use YRFitness Admin agents (implementation-agent-frontend, reviewer-agent-frontend, qa-agent-frontend) and the recommended workflow for feature development. Use when implementing features or understanding the development process.
 ---
 
@@ -161,6 +161,10 @@ Cubre:
 
 ---
 
+## Agent Logs
+
+Each agent (implementation, reviewer, QA) writes a log file under `.cursor/logs/` when it finishes a task. Log files are named `{agent-name}-{timestamp}.md` and contain a short summary, files touched, and result (SUCCESS, APPROVED, REQUEST_CHANGES, etc.). The `.cursor/logs/` directory is in `.gitignore` and is for local traceability only.
+
 ## Project Structure Reference
 
 ```
@@ -186,6 +190,7 @@ admin/
 ├── README_ai.md          # Architecture guide for AI
 └── .cursor/
     ├── agents/           # Implementation, reviewer, QA agents
+    ├── logs/             # Agent run logs (one file per run, gitignored)
     └── skills/           # Development workflow documentation
 ```
 

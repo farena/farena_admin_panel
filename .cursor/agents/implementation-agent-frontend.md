@@ -427,3 +427,18 @@ A task is complete when:
 4. Routes and menus are updated (if applicable)
 5. Error handling and loading states are implemented
 6. Code is production-ready with no placeholders
+
+## Agent Logging (MANDATORY)
+
+When you finish your task (success or error), you MUST write a log file under `.cursor/logs/` in this project so agent activity is traceable.
+
+1. Write a single log file named: `{agent-name}-{ISO-timestamp}.md` (e.g. `implementation-agent-frontend-2025-03-02T14-30-00.md`). Use a timestamp at task end (format: `YYYY-MM-DDTHH-mm-ss`).
+2. Log content must be valid markdown and include:
+   - **Agent**: implementation-agent-frontend
+   - **Task**: task_id or brief description of what was requested
+   - **Finished**: (timestamp)
+   - **Summary**: 2–4 sentences describing what was done
+   - **Files touched**: list of files created or modified
+   - **Result**: SUCCESS | ERROR
+   - **Notes**: (optional) assumptions, blockers, or follow-ups
+3. Create the file with the Write tool; the directory `.cursor/logs/` will be created if needed.
