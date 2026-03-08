@@ -32,21 +32,15 @@ export function dollarsToCents(dollars) {
 }
 
 /**
- * Format money value for display
- * If value is large (> 1000), assumes it's in cents and converts to dollars
- * Otherwise, assumes it's already in dollars
- * @param {number} value - Amount (in cents if > 1000, otherwise in dollars)
- * @returns {string} Formatted money string
+ * Format money value for display (always 2 decimal places)
+ * @param {number} value - Amount in dollars (e.g. 99.5)
+ * @returns {string} Formatted money string (e.g. "1,234.50")
  */
 export function formatToMoney(value) {
   if (value == null || isNaN(value)) return '0.00'
 
-  // Convert to fixed decimal and replace decimal point
-  let formatted = value.toFixed(2)
-
-  // Add thousands separators
+  let formatted = Number(value).toFixed(2)
   formatted = formatted.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
-
   return formatted
 }
 
