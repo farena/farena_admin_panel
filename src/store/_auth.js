@@ -1,7 +1,4 @@
-import axios from 'axios'
 import $router from '../router/index'
-
-const baseUrl = import.meta.env.VITE_BACKEND_URL
 
 export default {
   state: () => ({

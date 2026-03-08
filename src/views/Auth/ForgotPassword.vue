@@ -32,7 +32,7 @@ export default {
         return
       }
 
-      this.$store.dispatch('forgotPassword', this.form).then((data) => {
+      this.$store.dispatch('forgotPassword', this.form).then(() => {
         this.$toast.success('Password reset has been sent. Please check your email')
       })
     }
