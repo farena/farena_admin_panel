@@ -9,7 +9,7 @@
   />
   <FormSwitch label="Remember me" v-model="form.remember" small />
 
-  <button class="btn btn-primary btn-block mt-4" @click="signIn">Log In</button>
+  <FormButton theme="primary" block class="mt-4" @click="signIn">Log In</FormButton>
 
   <router-link class="small text-center d-block mt-2" :to="{ name: 'forgotPassword' }">
     Forgot your password?
@@ -19,11 +19,13 @@
 <script>
 import FormText from '@/components/Form/FormText.vue'
 import FormSwitch from '@/components/Form/FormSwitch.vue'
+import FormButton from '@/components/Form/FormButton.vue'
 
 export default {
   components: {
     FormText,
-    FormSwitch
+    FormSwitch,
+    FormButton
   },
   data: () => ({
     form: {

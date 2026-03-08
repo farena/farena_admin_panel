@@ -38,14 +38,15 @@
 
     <template #footer v-if="customRanges.length">
       <div class="form-date-ranges">
-        <button
-          class="btn btn-outline-dark"
+        <FormButton
+          theme="dark"
+          outlined
           v-for="(r, ri) of customRanges"
           :key="ri"
           @click="applyCustomRange(r)"
         >
           {{ r.label }}
-        </button>
+        </FormButton>
       </div>
     </template>
   </v-date-picker>
@@ -54,8 +55,12 @@
 <script>
 import moment from 'moment'
 import { parseToDate, parseToString } from '@/utils/date.js'
+import FormButton from './FormButton.vue'
 
 export default {
+  components: {
+    FormButton
+  },
   props: {
     modelValue: {
       type: [Object],

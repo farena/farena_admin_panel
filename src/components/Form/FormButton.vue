@@ -1,6 +1,7 @@
 <template>
   <button
     v-if="!to"
+    :type="type"
     class="btn"
     :class="[
       { 'btn-block': block, 'btn-sm': small, disabled, 'btn-rounded': justIcon },
@@ -75,6 +76,10 @@
 <script>
 export default {
   props: {
+    type: {
+      type: String,
+      default: 'button'
+    },
     theme: {
       type: String,
       default: 'primary'

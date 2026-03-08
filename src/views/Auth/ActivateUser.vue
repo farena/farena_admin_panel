@@ -8,7 +8,7 @@
     @keyup.enter="createPassword"
   />
 
-  <button class="btn btn-primary btn-block" @click="createPassword">Create Password</button>
+  <FormButton theme="primary" block @click="createPassword">Create Password</FormButton>
 
   <router-link class="small text-center d-block mt-2" :to="{ name: 'login' }">
     Back to Login
@@ -17,10 +17,12 @@
 
 <script>
 import FormText from '@/components/Form/FormText.vue'
+import FormButton from '@/components/Form/FormButton.vue'
 
 export default {
   components: {
-    FormText
+    FormText,
+    FormButton
   },
   data: () => ({
     form: {

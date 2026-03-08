@@ -11,9 +11,9 @@
         <div class="form-wrapper">
           <div class="d-flex gap-2">
             <slot name="current" />
-            <button class="btn btn-primary btn-sm btn-block" @click="launchFilePicker">
+            <FormButton theme="primary" small block @click="launchFilePicker">
               {{ buttonText }}
-            </button>
+            </FormButton>
           </div>
 
           <div>
@@ -33,8 +33,13 @@
 </template>
 
 <script>
+import FormButton from './FormButton.vue'
+
 export default {
   emtis: ['onChange', 'onReset'],
+  components: {
+    FormButton
+  },
   props: {
     modelValue: {
       type: [Object, File, String],

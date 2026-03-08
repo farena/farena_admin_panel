@@ -6,7 +6,7 @@
     @keyup.enter="resetPassword"
   />
 
-  <button class="btn btn-primary btn-block" @click="resetPassword">Reset Password</button>
+  <FormButton theme="primary" block @click="resetPassword">Reset Password</FormButton>
 
   <router-link class="small text-center d-block mt-2" :to="{ name: 'login' }">
     Back to Login
@@ -15,10 +15,12 @@
 
 <script>
 import FormText from '@/components/Form/FormText.vue'
+import FormButton from '@/components/Form/FormButton.vue'
 
 export default {
   components: {
-    FormText
+    FormText,
+    FormButton
   },
   data: () => ({
     form: {
