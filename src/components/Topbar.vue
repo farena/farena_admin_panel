@@ -5,8 +5,7 @@
     </button>
 
     <ul class="topbar-buttons">
-      <li><i class="fa-solid fa-bell"></i></li>
-      <li><i class="fa-solid fa-gear"></i></li>
+      <li @click="$router.push('/settings')"><i class="fa-solid fa-gear"></i></li>
       <li @click="$store.dispatch('logout')">
         <i class="fa-solid fa-power-off"></i>
       </li>

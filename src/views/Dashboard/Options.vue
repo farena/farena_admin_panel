@@ -1,35 +1,37 @@
 <template>
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h4>Cambiar Password</h4>
-        </div>
+      <Widget>
+        <template #title> Cambiar Password </template>
+
         <form @submit.prevent="savePassword">
-          <div class="card-body">
-            <FormText label="Nueva Password" password v-model="form.new_password" />
-            <FormText
-              label="Repetir Nueva Password"
-              password
-              v-model="form.new_password_confirmation"
-            />
-            <FormText label="Password Actual" password v-model="form.password" />
-          </div>
-          <div class="card-footer">
-            <button class="btn btn-primary btn-block" type="submit">Guardar</button>
-          </div>
+          <FormText label="Nueva Password" password v-model="form.new_password" />
+          <FormText
+            label="Repetir Nueva Password"
+            password
+            v-model="form.new_password_confirmation"
+          />
+          <FormText label="Password Actual" password v-model="form.password" />
+
+          <hr />
+
+          <FormButton theme="primary" block type="submit">Guardar</FormButton>
         </form>
-      </div>
+      </Widget>
     </div>
   </div>
 </template>
 
 <script>
+import FormButton from '@/components/Form/FormButton.vue'
 import FormText from '@/components/Form/FormText.vue'
+import Widget from '@/components/Widget.vue'
 
 export default {
   components: {
-    FormText
+    FormText,
+    Widget,
+    FormButton
   },
   data: () => ({
     form: {

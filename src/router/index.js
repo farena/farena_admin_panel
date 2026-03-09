@@ -56,7 +56,7 @@ const routes = [
         component: () => import('@/views/UI/Tabs.vue')
       },
       {
-        path: 'opciones',
+        path: 'settings',
         component: () => import('@/views/Dashboard/Options.vue')
       }
     ]
