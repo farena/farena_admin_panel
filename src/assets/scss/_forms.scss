@@ -503,13 +503,16 @@
     }
   }
   &.form-html {
+    --editor-height: 100px;
+
     .ck {
       --ck-border-radius: var(--radius);
       --ck-focus-ring: 1px solid var(--color-primary);
     }
     .ck.ck-editor__main .ck-content {
       padding: 0.5em 1em;
-      height: 150px;
+      min-height: 100px;
+      height: var(--editor-height);
       overflow-y: auto;
     }
     .ck figure {

@@ -1,5 +1,9 @@
 <template>
-  <div class="form-container form-html" :class="{ disabled, 'input-error': errors?.length }">
+  <div
+    class="form-container form-html"
+    :class="{ disabled, 'input-error': errors?.length }"
+    :style="customStyle"
+  >
     <label v-if="label">
       {{ label }}
       <small class="text-muted"> Usa ctrl+enter para crear saltos de línea pequeños </small>
@@ -35,7 +39,11 @@ import {
   FontColor,
   AutoLink,
   Link,
-  List
+  List,
+  Image,
+  Heading,
+  HeadingButtonsUI,
+  ParagraphButtonUI
 } from 'ckeditor5'
 import 'ckeditor5/ckeditor5.css'
 import ckeditor from '@/plugins/CKeditor'
@@ -58,6 +66,10 @@ export default {
     placeholder: String,
     errors: {
       type: Array,
+      default: null
+    },
+    height: {
+      type: [Number, String],
       default: null
     }
   },
@@ -83,7 +95,11 @@ export default {
           TableToolbar,
           AutoLink,
           Link,
-          List
+          List,
+          Image,
+          Heading,
+          HeadingButtonsUI,
+          ParagraphButtonUI
         ],
         toolbar: [
           'undo',
@@ -91,8 +107,11 @@ export default {
           '|',
           'alignment',
           '|',
+          'heading',
+          '|',
           'bold',
           'italic',
+          '|',
           'fontfamily',
           'fontsize',
           'fontColor',
@@ -112,6 +131,14 @@ export default {
         table: {
           contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
         },
+        heading: {
+          options: [
+            { model: 'paragraph', title: 'Parrafo', class: 'ck-heading_paragraph' },
+            { model: 'heading2', view: 'h2', title: 'Encabezado 1', class: 'ck-heading_heading2' },
+            { model: 'heading3', view: 'h3', title: 'Encabezado 2', class: 'ck-heading_heading3' },
+            { model: 'heading4', view: 'h4', title: 'Encabezado 3', class: 'ck-heading_heading4' }
+          ]
+        },
         mention: !this.autocompleteOpts
           ? {}
           : {
@@ -126,6 +153,17 @@ export default {
             },
         placeholder: this.placeholder || {}
       }
+    },
+    customStyle() {
+      if (this.height) {
+        if (typeof this.height === 'string') {
+          return `--editor-height: ${this.height}`
+        }
+
+        return `--editor-height: ${this.height}px`
+      }
+
+      return {}
     },
     result: {
       get() {
