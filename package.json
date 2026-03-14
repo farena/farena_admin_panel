@@ -19,6 +19,7 @@
     "moment": "^2.29.4",
     "sweetalert2": "^11.4.19",
     "v-calendar": "^3.0.0-alpha.8",
+    "validatorjs": "^3.22.1",
     "vue": "^3.3.4",
     "vue-advanced-cropper": "^2.8.9",
     "vue-color-input": "git://github.com/farena/vue-color-input.git",

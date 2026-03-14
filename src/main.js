@@ -9,6 +9,7 @@ import errorHandler from './utils/errorHandler'
 import VueTables from './components/Tables'
 import VueModal from './components/Modal'
 import clients from './utils/clients'
+import validator from './utils/validator'
 
 import 'v-calendar/dist/style.css'
 import './assets/scss/styles.scss'
@@ -31,4 +32,5 @@ createApp(App)
   .use(VueTables)
   .use(VueModal)
   .use(clients)
+  .use(validator)
   .mount('#app')
