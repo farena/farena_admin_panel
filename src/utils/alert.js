@@ -24,7 +24,7 @@ export default {
               confirmButtonText: 'OK',
               customClass: {
                 confirmButton: 'btn-sm btn btn-primary',
-                cancelButton: 'btn-sm btn btn-danger ml-1'
+                cancelButton: 'btn-sm btn btn-medium ml-1'
               },
               showClass: {
                 popup: `

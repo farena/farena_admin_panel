@@ -69,11 +69,11 @@ export default {
     this.getData()
   },
   methods: {
-    getData() {
+    getData(force = false) {
       return new Promise((resolve) => {
         this.loading = true
 
-        this.$store.dispatch(this.vuex_action).then(() => {
+        this.$store.dispatch(this.vuex_action, { force }).then(() => {
           this.$emit('ready', this.options)
           if (this.result) {
             this.$emit(
