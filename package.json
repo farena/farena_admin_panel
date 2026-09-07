@@ -11,11 +11,10 @@
     "new-module": "node ./scripts/new-module.js"
   },
   "dependencies": {
+    "@farena/fa-editor": "^1.0.0",
     "@guolao/vue-monaco-editor": "^1.5.4",
     "axios": "^0.27.2",
-    "ckeditor5": "^42.0.2",
     "core-js": "^3.6.5",
-    "lodash-es": "^4.17.21",
     "moment": "^2.29.4",
     "sweetalert2": "^11.4.19",
     "v-calendar": "^3.0.0-alpha.8",

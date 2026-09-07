@@ -9,12 +9,14 @@
       <small class="text-muted"> Usa ctrl+enter para crear saltos de línea pequeños </small>
     </label>
     <div class="form-wrapper">
-      <ckeditor
-        :editor="editor"
+      <FaEditor
+        ref="editor"
         v-model="result"
-        :config="editorConfig"
-        @ready="editorRef = $event"
-      ></ckeditor>
+        :lang="lang"
+        :disabled="disabled"
+        :placeholder="placeholder"
+        :autocompleteOpts="autocompleteOpts"
+      />
     </div>
     <p v-if="errors?.length" class="error-message">
       {{ errors.join(', ') }}
@@ -23,34 +25,11 @@
 </template>
 
 <script>
-import {
-  ClassicEditor,
-  Table,
-  TableToolbar,
-  Bold,
-  Essentials,
-  Italic,
-  Alignment,
-  Paragraph,
-  Mention,
-  Undo,
-  FontFamily,
-  FontSize,
-  FontColor,
-  AutoLink,
-  Link,
-  List,
-  Image,
-  Heading,
-  HeadingButtonsUI,
-  ParagraphButtonUI
-} from 'ckeditor5'
-import 'ckeditor5/ckeditor5.css'
-import ckeditor from '@/plugins/CKeditor'
+import { FaEditor } from '@farena/fa-editor'
 
 export default {
   components: {
-    ckeditor
+    FaEditor
   },
   props: {
     modelValue: {
@@ -64,6 +43,11 @@ export default {
     },
     autocompleteOpts: Array,
     placeholder: String,
+    // El editor viene en ingles por defecto; la app es en castellano.
+    lang: {
+      type: String,
+      default: 'es'
+    },
     errors: {
       type: Array,
       default: null
@@ -73,87 +57,7 @@ export default {
       default: null
     }
   },
-  data: () => ({
-    editor: ClassicEditor,
-    editorRef: null
-  }),
   computed: {
-    editorConfig() {
-      return {
-        plugins: [
-          Bold,
-          Essentials,
-          Italic,
-          Alignment,
-          Paragraph,
-          Undo,
-          FontFamily,
-          FontSize,
-          Mention,
-          FontColor,
-          Table,
-          TableToolbar,
-          AutoLink,
-          Link,
-          List,
-          Image,
-          Heading,
-          HeadingButtonsUI,
-          ParagraphButtonUI
-        ],
-        toolbar: [
-          'undo',
-          'redo',
-          '|',
-          'alignment',
-          '|',
-          'heading',
-          '|',
-          'bold',
-          'italic',
-          '|',
-          'fontfamily',
-          'fontsize',
-          'fontColor',
-          '|',
-          'insertTable',
-          '|',
-          'link',
-          '|',
-          'numberedList',
-          'bulletedList'
-        ],
-        link: {
-          addTargetToExternalLinks: true,
-          defaultProtocol: 'http://',
-          toolbar: ['editLink', 'linkProperties', 'unlink']
-        },
-        table: {
-          contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
-        },
-        heading: {
-          options: [
-            { model: 'paragraph', title: 'Parrafo', class: 'ck-heading_paragraph' },
-            { model: 'heading2', view: 'h2', title: 'Encabezado 1', class: 'ck-heading_heading2' },
-            { model: 'heading3', view: 'h3', title: 'Encabezado 2', class: 'ck-heading_heading3' },
-            { model: 'heading4', view: 'h4', title: 'Encabezado 3', class: 'ck-heading_heading4' }
-          ]
-        },
-        mention: !this.autocompleteOpts
-          ? {}
-          : {
-              feeds: [
-                {
-                  marker: '#',
-                  feed: this.autocompleteOpts.filter((x) => x.startsWith('#')),
-                  minimumCharacters: 0,
-                  dropdownLimit: 100
-                }
-              ]
-            },
-        placeholder: this.placeholder || {}
-      }
-    },
     customStyle() {
       if (this.height) {
         if (typeof this.height === 'string') {
@@ -176,7 +80,7 @@ export default {
   },
   methods: {
     focus() {
-      this.editorRef.focus()
+      this.$refs.editor.focus()
     }
   }
 }

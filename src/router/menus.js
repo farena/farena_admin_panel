@@ -16,6 +16,10 @@ export default [
         to: '/forms'
       },
       {
+        title: 'HTML editor',
+        to: '/html_editor'
+      },
+      {
         title: 'Tables',
         to: '/tables'
       },

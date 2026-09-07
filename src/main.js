@@ -13,6 +13,7 @@ import validator from './utils/validator'
 
 import 'v-calendar/dist/style.css'
 import './assets/scss/styles.scss'
+import '@farena/fa-editor/style.css'
 import './components/Tables/utils/ucwords'
 
 import { loader } from '@guolao/vue-monaco-editor'

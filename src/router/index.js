@@ -44,6 +44,10 @@ const routes = [
         component: () => import('@/views/UI/Forms.vue')
       },
       {
+        path: 'html_editor',
+        component: () => import('@/views/UI/FaEditorLab.vue')
+      },
+      {
         path: 'tables',
         component: () => import('@/views/UI/Tables.vue')
       },

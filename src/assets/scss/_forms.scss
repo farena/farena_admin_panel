@@ -505,33 +505,15 @@
   &.form-html {
     --editor-height: 100px;
 
-    .ck {
-      --ck-border-radius: var(--radius);
-      --ck-focus-ring: 1px solid var(--color-primary);
+    .fa-editor {
+      --fa-ed-radius: var(--radius);
+      --fa-ed-focus-ring: 1px solid var(--color-primary);
     }
-    .ck.ck-editor__main .ck-content {
+    .fa-editor__content {
       padding: 0.5em 1em;
       min-height: 100px;
       height: var(--editor-height);
       overflow-y: auto;
-    }
-    .ck figure {
-      margin: 1em 0 0 0;
-
-      table {
-        border-collapse: collapse;
-        border: 0;
-
-        th {
-          background: unset;
-        }
-        th,
-        tr,
-        td {
-          border: 0;
-          padding: 0;
-        }
-      }
     }
   }
 
@@ -632,6 +614,9 @@
     .form-wrapper {
       border-color: var(--color-danger) !important;
     }
+    .fa-editor {
+      border: 1px solid var(--color-danger) !important;
+    }
   }
 
   &.form-phone {
@@ -670,29 +655,6 @@ label {
   font-weight: 600;
   margin-bottom: 0.25em;
   height: calc(var(--label-height) - 0.25em);
-}
-
-.ck {
-  --ck-font-size-base: 10px;
-
-  &.ck-balloon-panel {
-    z-index: 9999999 !important;
-  }
-
-  ul,
-  ol {
-    padding-left: 1.25em;
-  }
-
-  .ck-content * {
-    font-family: Arial, Helvetica, sans-serif;
-    color: #5e5e5e;
-  }
-}
-.ck-body-wrapper {
-  .ck-powered-by-balloon {
-    display: none !important;
-  }
 }
 
 .form-dropdown {
@@ -857,10 +819,6 @@ label {
       width: $avatarSize;
       height: $avatarSize;
       margin-top: 2px;
-    }
-
-    .ck.ck-content.ck-editor__editable.ck-rounded-corners.ck-editor__editable_inline {
-      padding: 0.5em 1em;
     }
 
     .form-comment-actions {

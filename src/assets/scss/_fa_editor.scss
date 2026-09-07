@@ -1,0 +1,21 @@
+// Estilos del banco de pruebas de fa-editor (/ui/fa-editor).
+// El editor en si se estila en src/plugins/FaEditor/fa-editor.scss.
+
+.fa-editor-lab__output {
+  max-height: 300px;
+  margin: 0 0 1em 0;
+  padding: 0.75em;
+  overflow: auto;
+  background: hsl(0, 0%, 96%);
+  border-radius: var(--radius);
+  font-size: 0.8em;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.fa-editor-lab__preview {
+  min-height: 4em;
+  padding: 0.75em;
+  border: 1px dashed hsl(0, 0%, 80%);
+  border-radius: var(--radius);
+}

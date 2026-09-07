@@ -91,4 +91,9 @@ $custom-sizes: map-merge(
   --sidebar-closed-width: calc(40px + 2em);
   --sidebar-open-width: 250px;
   --topbar-height: 72px;
+
+  // Menciones del editor. Son los mismos valores con los que se guardo el
+  // contenido que ya esta en la base: cambiarlos cambia como se ve.
+  --fa-color-mention-background: hsla(341, 100%, 30%, 0.1);
+  --fa-color-mention-text: hsl(341, 100%, 30%);
 }
