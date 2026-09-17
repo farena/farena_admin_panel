@@ -29,13 +29,13 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
-    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitejs/plugin-vue": "^6.0.9",
     "@vue/eslint-config-prettier": "^7.1.0",
     "eslint": "^8.39.0",
     "eslint-plugin-vue": "^9.11.0",
     "prettier": "^2.8.8",
     "sass": "^1.63.6",
-    "vite": "^4.3.9",
+    "vite": "^8.3.0",
     "yargs": "^17.7.2"
   }
 }
